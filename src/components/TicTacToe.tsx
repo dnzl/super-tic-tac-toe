@@ -53,14 +53,18 @@ const Container = styled.div<{ disabled?: boolean }>`
 
 type ParentBoxProps = {
   parentKey: string;
-  onChangePlayer(): void;
+  onCellMarked(rowCol: RowCol): void;
   currentPlayer: Mark;
+  isDisabled: boolean;
+  onParentWin(mark: Mark): void;
 };
 
 const ParentBox: FC<ParentBoxProps> = ({
   parentKey,
-  onChangePlayer,
+  onCellMarked,
   currentPlayer,
+  isDisabled,
+  onParentWin,
 }) => {
   const [parentMark, setParentMark] = useState<Mark | null>(null);
   const { boxState: childBoxes, onCellMark, checkForWin } = useTicTacToe();
@@ -68,7 +72,7 @@ const ParentBox: FC<ParentBoxProps> = ({
     ({ row, col }: RowCol) => {
       const success = onCellMark({ row, col, mark: currentPlayer });
       if (success) {
-        onChangePlayer();
+        onCellMarked({ row, col });
       }
     },
     [currentPlayer, childBoxes, onCellMark]
@@ -77,18 +81,21 @@ const ParentBox: FC<ParentBoxProps> = ({
   useEffect(() => {
     const winner = checkForWin();
     setParentMark(winner);
+    if (winner) onParentWin(winner);
   }, [childBoxes, checkForWin]);
 
+  const disabledParent = !!(parentMark || isDisabled);
+
   return (
-    <Container {...(parentMark && { disabled: true })}>
+    <Container {...(disabledParent && { disabled: true })}>
       {parentMark && <ParentMark mark={parentMark}>{parentMark}</ParentMark>}
       <Box>
         {childBoxes.map((childRow, row) =>
-          childRow.map(({ mark, isDisabled }, col) => (
+          childRow.map(({ mark }, col) => (
             <ChildBox
               key={`${parentKey}-${row}-${col}`}
-              onClick={() => handleCellClick({ row, col })}
-              isDisabled={isDisabled}
+              onClick={() => !disabledParent && handleCellClick({ row, col })}
+              isDisabled={disabledParent}
             >
               {mark && <ChildMark mark={mark}>{mark.toUpperCase()}</ChildMark>}
             </ChildBox>
