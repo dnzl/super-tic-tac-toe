@@ -1,7 +1,7 @@
-import { FC, useCallback } from "react";
+import { FC, useCallback, useEffect } from "react";
 import { styled } from "styled-components";
 import { BaseTicTacToe, Mark, RowCol } from "../types";
-import useTicTacToe from "../useTicTacToe";
+import useTicTacToe from "../hooks/useTicTacToe";
 
 const cellSize = 50;
 const gridTemplate = `${cellSize}px ${cellSize}px ${cellSize}px`;
@@ -17,7 +17,7 @@ const ChildBox = styled.div`
   border: solid 1px green;
 `;
 
-const ParentMark = styled.div<{ mark: BaseTicTacToe["mark"] }>`
+const ParentMark = styled.div<{ mark?: Mark }>`
   font-size: 10em;
   top: 0;
   left: 0;
@@ -30,7 +30,7 @@ const ParentMark = styled.div<{ mark: BaseTicTacToe["mark"] }>`
   color: ${({ mark }) => (mark === Mark.X ? "red" : "blue")};
 `;
 
-const ChildMark = styled.div<{ mark: BaseTicTacToe["mark"] }>`
+const ChildMark = styled.div<{ mark?: Mark }>`
   font-size: ${cellSize}px;
   display: block;
   line-height: ${cellSize}px;
@@ -42,7 +42,7 @@ const Container = styled.div`
   position: relative;
 `;
 
-type ParentBoxProps = BaseTicTacToe & {
+type ParentBoxProps = {
   parentKey: string;
   onChangePlayer(): void;
   currentPlayer: Mark;
@@ -51,31 +51,39 @@ type ParentBoxProps = BaseTicTacToe & {
 const ParentBox: FC<ParentBoxProps> = ({
   parentKey,
   onChangePlayer,
-  mark: parentMark,
   currentPlayer,
 }) => {
-  const { boxState: childBoxes, onCellClick } = useTicTacToe();
+  const parentMark = null;
+  const { boxState: childBoxes, onCellMark, checkForWin } = useTicTacToe();
   const handleCellClick = useCallback(
     ({ row, col }: RowCol) => {
-      const success = onCellClick({ row, col, mark: currentPlayer });
+      const success = onCellMark({ row, col, mark: currentPlayer });
       if (success) {
         onChangePlayer();
       }
     },
-    [currentPlayer, onCellClick, onChangePlayer]
+    [currentPlayer, childBoxes, onCellMark]
   );
+
+  useEffect(() => {
+    const winner = checkForWin();
+    console.log({ winner });
+  }, [childBoxes, checkForWin]);
+
   return (
     <Container>
       {parentMark && <ParentMark mark={parentMark}>{parentMark}</ParentMark>}
       <Box>
-        {childBoxes.map(({ mark, row, col }) => (
-          <ChildBox
-            key={`${parentKey}-${row}-${col}`}
-            onClick={() => handleCellClick({ row, col })}
-          >
-            {mark && <ChildMark mark={mark}>{mark}</ChildMark>}
-          </ChildBox>
-        ))}
+        {childBoxes.map((childRow, row) =>
+          childRow.map(({ mark, isDisabled }, col) => (
+            <ChildBox
+              key={`${parentKey}-${row}-${col}`}
+              onClick={() => handleCellClick({ row, col })}
+            >
+              {mark && <ChildMark mark={mark}>{mark.toUpperCase()}</ChildMark>}
+            </ChildBox>
+          ))
+        )}
       </Box>{" "}
     </Container>
   );

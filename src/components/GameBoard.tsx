@@ -1,7 +1,7 @@
 import styled from "styled-components";
-import ParentBox from "./components/TicTacToe";
-import { Mark } from "./types";
-import useTicTacToe from "./useTicTacToe";
+import ParentBox from "./TicTacToe";
+import { Mark } from "../types";
+import useTicTacToe from "../hooks/useTicTacToe";
 import { useCallback, useState } from "react";
 
 const GameBox = styled.div`
@@ -18,17 +18,19 @@ const GameBoard = () => {
   const changePlayer = useCallback(() => {
     setCurrentPlayer(currentPlayer === Mark.X ? Mark.O : Mark.X);
   }, [currentPlayer]);
+
   return (
     <GameBox>
-      {boxState.map((pb) => (
-        <ParentBox
-          key={`parent-${pb.row}-${pb.col}`}
-          parentKey={`parent-${pb.row}-${pb.col}`}
-          onChangePlayer={changePlayer}
-          currentPlayer={currentPlayer}
-          {...pb}
-        />
-      ))}
+      {boxState.map((boxRow, row) =>
+        boxRow.map((cell, col) => (
+          <ParentBox
+            key={`parent-${row}-${col}`}
+            parentKey={`parent-${row}-${col}`}
+            onChangePlayer={changePlayer}
+            currentPlayer={currentPlayer}
+          />
+        ))
+      )}
     </GameBox>
   );
 };

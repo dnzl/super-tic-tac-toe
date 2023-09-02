@@ -37,11 +37,4 @@ describe("when user clicks on a box", () => {
   it("should mark game as won if parent box won", () => {});
   it("should set next turn in the right box", () => {});
   it("should enable all available boxes when target box is already finished", () => {});
-  it("should enable all available boxes when target box is already finished", () => {});
-  it("", () => {});
-  it("", () => {});
-  it("", () => {});
-  it("", () => {});
-  it("", () => {});
-  it("", () => {});
 });
