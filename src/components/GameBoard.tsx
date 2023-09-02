@@ -1,17 +1,33 @@
 import styled from "styled-components";
-import ParentBox from "./TicTacToe";
+import ParentBox, { cellSize } from "./TicTacToe";
 import { Mark, RowCol } from "../types";
 import useTicTacToe from "../hooks/useTicTacToe";
 import { useCallback, useEffect, useState } from "react";
 
+const parentCellSize = cellSize * 3;
+const gridTemplate = `${parentCellSize}px ${parentCellSize}px ${parentCellSize}px`;
+
 const Container = styled.div`
-  border: blue solid 1px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+`;
+const GameStatus = styled.div`
+  h2 {
+    line-height: 2em;
+    display: inline-flex;
+    justify-content: space-between;
+    line-height: 2em;
+    width: 170px;
+  }
 `;
 const GameBox = styled.div`
   display: grid;
-  grid-template-columns: 180px 180px 180px;
-  grid-template-rows: 180px 180px 180px;
-  gap: 20px;
+  grid-template-columns: ${gridTemplate};
+  grid-template-rows: ${gridTemplate};
+  gap: 5px;
+  background: #888;
 `;
 
 const CurrentPlayer = styled.span<{ mark?: Mark }>`
@@ -56,21 +72,23 @@ const GameBoard = () => {
 
   return (
     <Container>
-      {gameWinner ? (
-        <h2>
-          Winner:{" "}
-          <CurrentPlayer mark={gameWinner}>
-            {gameWinner.toUpperCase()}
-          </CurrentPlayer>
-        </h2>
-      ) : (
-        <h3>
-          Current player:{" "}
-          <CurrentPlayer mark={currentPlayer}>
-            {currentPlayer.toUpperCase()}
-          </CurrentPlayer>
-        </h3>
-      )}
+      <GameStatus>
+        {gameWinner ? (
+          <h2>
+            Winner:{" "}
+            <CurrentPlayer mark={gameWinner}>
+              {gameWinner.toUpperCase()}
+            </CurrentPlayer>
+          </h2>
+        ) : (
+          <h3>
+            Current player:{" "}
+            <CurrentPlayer mark={currentPlayer}>
+              {currentPlayer.toUpperCase()}
+            </CurrentPlayer>
+          </h3>
+        )}
+      </GameStatus>
       <GameBox>
         {boxState.map((boxRow, row) =>
           boxRow.map((cell, col) => (

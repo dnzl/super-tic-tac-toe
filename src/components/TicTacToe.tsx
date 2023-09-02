@@ -1,27 +1,26 @@
 import { FC, useCallback, useEffect, useState } from "react";
 import { styled } from "styled-components";
-import { BaseTicTacToe, Mark, RowCol } from "../types";
+import { Mark, RowCol } from "../types";
 import useTicTacToe from "../hooks/useTicTacToe";
 
-const cellSize = 50;
+export const cellSize = 100;
 const gridTemplate = `${cellSize}px ${cellSize}px ${cellSize}px`;
 
 const Box = styled.div`
-  border: solid 1px red;
-  gap: 10px;
   display: grid;
   grid-template-columns: ${gridTemplate};
   grid-template-rows: ${gridTemplate};
 `;
-const ChildBox = styled.div<{ isDisabled?: boolean; isActive?: boolean }>`
-  border: solid 1px green;
-  ${({ isDisabled }) => isDisabled && "opacity: .5;"}
-  cursor:  ${({ isDisabled }) => (isDisabled ? "inherit" : "pointer")};
-  ${({ isActive }) => isActive && "background: yellow"};
+const ChildBox = styled.div<{ $isDisabled?: boolean }>`
+  border: solid 1px #666;
+  ${({ $isDisabled: isDisabled }) => isDisabled && "opacity: .5;"}
+  cursor:  ${({ $isDisabled: isDisabled }) =>
+    isDisabled ? "inherit" : "pointer"};
+  background: #fff;
 `;
 
 const ParentMark = styled.div<{ mark?: Mark }>`
-  font-size: 10em;
+  font-size: ${cellSize * 3}px;
   top: 0;
   left: 0;
   right: 0;
@@ -32,6 +31,8 @@ const ParentMark = styled.div<{ mark?: Mark }>`
   text-align: center;
   color: ${({ mark }) => (mark === Mark.X ? "red" : "blue")};
   z-index: 999;
+  text-transform: uppercase;
+  text-shadow: 0 0 20px ${({ mark }) => (mark === Mark.X ? "red" : "blue")};
 `;
 
 const ChildMark = styled.div<{ mark?: Mark }>`
@@ -39,10 +40,10 @@ const ChildMark = styled.div<{ mark?: Mark }>`
   display: block;
   line-height: ${cellSize}px;
   text-align: center;
+  text-transform: uppercase;
   color: ${({ mark }) => (mark === Mark.X ? "red" : "blue")};
 `;
 const Container = styled.div<{ disabled?: boolean }>`
-  border: solid 3px #0ff;
   position: relative;
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -95,9 +96,9 @@ const ParentBox: FC<ParentBoxProps> = ({
             <ChildBox
               key={`${parentKey}-${row}-${col}`}
               onClick={() => !disabledParent && handleCellClick({ row, col })}
-              isDisabled={disabledParent}
+              $isDisabled={disabledParent}
             >
-              {mark && <ChildMark mark={mark}>{mark.toUpperCase()}</ChildMark>}
+              {mark && <ChildMark mark={mark}>{mark}</ChildMark>}
             </ChildBox>
           ))
         )}
