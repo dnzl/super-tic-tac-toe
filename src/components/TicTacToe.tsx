@@ -1,4 +1,4 @@
-import { FC, useCallback, useEffect } from "react";
+import { FC, useCallback, useEffect, useState } from "react";
 import { styled } from "styled-components";
 import { BaseTicTacToe, Mark, RowCol } from "../types";
 import useTicTacToe from "../hooks/useTicTacToe";
@@ -13,8 +13,11 @@ const Box = styled.div`
   grid-template-columns: ${gridTemplate};
   grid-template-rows: ${gridTemplate};
 `;
-const ChildBox = styled.div`
+const ChildBox = styled.div<{ isDisabled?: boolean; isActive?: boolean }>`
   border: solid 1px green;
+  ${({ isDisabled }) => isDisabled && "opacity: .5;"}
+  cursor:  ${({ isDisabled }) => (isDisabled ? "inherit" : "pointer")};
+  ${({ isActive }) => isActive && "background: yellow"};
 `;
 
 const ParentMark = styled.div<{ mark?: Mark }>`
@@ -28,6 +31,7 @@ const ParentMark = styled.div<{ mark?: Mark }>`
   line-height: ${cellSize * 3}px;
   text-align: center;
   color: ${({ mark }) => (mark === Mark.X ? "red" : "blue")};
+  z-index: 999;
 `;
 
 const ChildMark = styled.div<{ mark?: Mark }>`
@@ -37,9 +41,14 @@ const ChildMark = styled.div<{ mark?: Mark }>`
   text-align: center;
   color: ${({ mark }) => (mark === Mark.X ? "red" : "blue")};
 `;
-const Container = styled.div`
+const Container = styled.div<{ disabled?: boolean }>`
   border: solid 3px #0ff;
   position: relative;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  ${({ disabled }) => disabled && "background: #ccc"}
 `;
 
 type ParentBoxProps = {
@@ -53,7 +62,7 @@ const ParentBox: FC<ParentBoxProps> = ({
   onChangePlayer,
   currentPlayer,
 }) => {
-  const parentMark = null;
+  const [parentMark, setParentMark] = useState<Mark | null>(null);
   const { boxState: childBoxes, onCellMark, checkForWin } = useTicTacToe();
   const handleCellClick = useCallback(
     ({ row, col }: RowCol) => {
@@ -67,11 +76,11 @@ const ParentBox: FC<ParentBoxProps> = ({
 
   useEffect(() => {
     const winner = checkForWin();
-    console.log({ winner });
+    setParentMark(winner);
   }, [childBoxes, checkForWin]);
 
   return (
-    <Container>
+    <Container {...(parentMark && { disabled: true })}>
       {parentMark && <ParentMark mark={parentMark}>{parentMark}</ParentMark>}
       <Box>
         {childBoxes.map((childRow, row) =>
@@ -79,6 +88,7 @@ const ParentBox: FC<ParentBoxProps> = ({
             <ChildBox
               key={`${parentKey}-${row}-${col}`}
               onClick={() => handleCellClick({ row, col })}
+              isDisabled={isDisabled}
             >
               {mark && <ChildMark mark={mark}>{mark.toUpperCase()}</ChildMark>}
             </ChildBox>

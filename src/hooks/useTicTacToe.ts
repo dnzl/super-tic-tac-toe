@@ -18,6 +18,7 @@ const useTicTacToe = () => {
 
       if (cell.isDisabled) return false;
       cell.mark = mark;
+      cell.isDisabled = true;
       const newState: BaseTicTacToe = [...boxState];
       newState[row] = [...boxState[row]];
       newState[row][col] = { ...cell };
